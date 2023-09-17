@@ -1,0 +1,6 @@
+.env
+*.pdf
+*.md
+*.mp3
+chroma_db/
+__pycache__/
