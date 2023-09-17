@@ -1,8 +1,11 @@
+langchain
+openai
+chromadb
+python-dotenv
+tiktoken
+sqlalchemy
 unstructured
 markdown
 SpeechRecognition
 pyaudio
-python-dotenv
 pyttsx3
-langchain
-openai

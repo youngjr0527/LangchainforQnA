@@ -35,18 +35,14 @@ class SpeechToText:
             else:
                 logging.info("호출 명령어가 없습니다. 다시 시도하세요.")
                 return None
-
-        except WaitTimeoutError:
-            logging.warning("타임아웃: 음성 감지 없음. 다시 while문 반복")
-            return None
-
-        except Exception as e:
-            logging.error(f"에러 발생: {e}")
+            
+        except:
+            logging.info("타임아웃: 음성 감지 없음. 다시 while문 반복")
             return None
 
 # main 함수
 if __name__ == "__main__":
-    trigger_word = "하이 빅스비"
+    trigger_word = "안녕 이루"
     stt = SpeechToText(trigger_word)
 
     while True:

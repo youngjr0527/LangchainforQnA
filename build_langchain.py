@@ -8,16 +8,27 @@ from langchain.vectorstores import Chroma
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import RetrievalQA
+from langchain.prompts import PromptTemplate
 from pathlib import Path
 import logging
 
 logging.basicConfig(level=logging.INFO)
 
 class QARetrieval:
-    def __init__(self, db_path):  # model_name도 인자로 받기
+    def __init__(self, db_path, llm_model="gpt-3.5-turbo", temperature=0, template=None):
         self.db_path = db_path
         self.embedding_function = OpenAIEmbeddings()
-        self.llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0)
+        self.llm = ChatOpenAI(model_name=llm_model, temperature=temperature)
+        if template:
+            self.template = template
+        else:
+            try:
+                with open("default_template.txt", "r", encoding='utf-8') as f:
+                    default_template = f.read()
+                self.template = PromptTemplate.from_template(default_template)
+            except FileNotFoundError:
+                logging.warning("default_template.txt not found. Using hardcoded template.")
+                self.template = None
 
     def ingest_documents(self, md_path=False): # Markdown 뿐만 아니라 pdf, docx 등 다양한 형식의 문서를 지원하도록 수정해야 함
         logging.info(f"Ingesting documents from {md_path if md_path else 'all markdown files'}")
@@ -51,9 +62,9 @@ class QARetrieval:
             Chroma.from_documents(texts, self.embedding_function, persist_directory=self.db_path)
 
     def generate_answer(self, question):
-        logging.info(f"Generating answer for question: {question}")
+        logging.info(f"Generating answer for [question: {question}]")
         db_from_disk = Chroma(persist_directory=self.db_path, embedding_function=self.embedding_function)
-        qa_chain = RetrievalQA.from_chain_type(self.llm, retriever=db_from_disk.as_retriever())
+        qa_chain = RetrievalQA.from_chain_type(self.llm, retriever=db_from_disk.as_retriever(), chain_type_kwargs={"prompt": self.template})
         result = qa_chain({"query": question})
         return result['result']
 
@@ -62,6 +73,6 @@ if __name__ == "__main__":
     qa_system = QARetrieval(db_path="./chroma_db")
     qa_system.ingest_documents()
 
-    question = "시립대에는 편의 시설 뭐 있어?"
+    question = "시립대에는 편의시설 뭐 있어?"
     result = qa_system.generate_answer(question=question)
     print(result)
