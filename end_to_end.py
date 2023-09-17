@@ -24,6 +24,7 @@ if __name__ == "__main__":
     qa_system = QARetrieval(db_path="./chroma_db")
     answer_text = qa_system.generate_answer(question=question_text)
     
+    logging.info("[출력된 text]: {}".format(answer_text))
     tts.speak(answer_text)
 
 
