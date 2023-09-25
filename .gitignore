@@ -2,5 +2,6 @@
 *.pdf
 *.md
 *.mp3
+*.exe
 chroma_db/
 __pycache__/

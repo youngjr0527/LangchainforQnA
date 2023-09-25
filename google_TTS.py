@@ -3,7 +3,7 @@
 # from gtts import gTTS
 
 # 1. mp3 파일로 저장하는 방식
-# # import playsound
+# import playsound
 
 # def speak(text):
 #      tts = gTTS(text=text, lang='ko')
@@ -34,3 +34,4 @@ if __name__ == "__main__":
     tts = TextToSpeech(rate=200, volume=1)
     text = '안녕하세요. 저는 이루멍입니다.'
     tts.speak(text) # mp3 음성파일로 저장되지 않고 바로 음성이 출력된다.
+

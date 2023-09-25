@@ -10,7 +10,7 @@ class SpeechToText:
     def __init__(self, trigger_word, lang="ko-KR"):
         self.r = Recognizer()
         self.mic = Microphone()
-        self.trigger_word = trigger_word
+        self.trigger_word = trigger_word # 호출 명령어
         self.lang = lang
 
     def recognize_voice(self):
@@ -42,7 +42,7 @@ class SpeechToText:
 
 # main 함수
 if __name__ == "__main__":
-    trigger_word = "안녕 이루"
+    trigger_word = "안녕 이루" 
     stt = SpeechToText(trigger_word)
 
     while True:

@@ -11,7 +11,7 @@ if __name__ == "__main__":
     qa_system = QARetrieval(db_path="./chroma_db")
     # qa_system.ingest_documents()  # ingest는 매번 할 필요 없음
     
-    trigger_word = "안녕 이루" # "안녕 이루멍"이라고 정확히 인식을 잘 못함
+    trigger_word = "하이 빅스비" # "안녕 이루멍"이라고 정확히 인식을 잘 못함
     stt = SpeechToText(trigger_word)
     tts = TextToSpeech(rate=190, volume=1)
 

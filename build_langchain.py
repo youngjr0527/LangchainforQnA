@@ -2,7 +2,7 @@
 #pip install markdown
 from dotenv import load_dotenv
 load_dotenv()
-from langchain.document_loaders import UnstructuredMarkdownLoader 
+from langchain.document_loaders import UnstructuredMarkdownLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from langchain.embeddings import OpenAIEmbeddings
@@ -52,7 +52,7 @@ class QARetrieval:
             pages = loader.load_and_split()
 
             text_splitter = RecursiveCharacterTextSplitter(
-                chunk_size=300,
+                chunk_size=1000,
                 chunk_overlap=20,
                 length_function=len,
                 is_separator_regex=False,
