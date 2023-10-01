@@ -8,7 +8,7 @@ import os
 import glob
 
 class UOSMenuScraper:
-    def __init__(self, save_dir='DB'):
+    def __init__(self, save_dir='UOS_DB'):
         self.driver = webdriver.Chrome()
         self.buildings = {
             'tab11': '학생회관',
@@ -88,5 +88,5 @@ class UOSMenuScraper:
         self.driver.quit()
 
 if __name__ == '__main__':
-    scraper = UOSMenuScraper(save_dir='DB')
+    scraper = UOSMenuScraper(save_dir='UOS_DB')
     scraper.run()

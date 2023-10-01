@@ -15,7 +15,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 class QARetrieval:
-    def __init__(self, db_path, llm_model="gpt-3.5-turbo", temperature=0, template=None):
+    def __init__(self, db_path="./Chroma_DB", llm_model="gpt-3.5-turbo", temperature=0, template=None):
         self.db_path = db_path
         self.embedding_function = OpenAIEmbeddings()
         self.llm = ChatOpenAI(model_name=llm_model, temperature=temperature)
@@ -70,7 +70,7 @@ class QARetrieval:
 
 
 if __name__ == "__main__":
-    qa_system = QARetrieval(db_path="./chroma_db")
+    qa_system = QARetrieval(db_path="./Chroma_DB")
     qa_system.ingest_documents()
 
     question = "시립대에는 편의시설 뭐 있어?"

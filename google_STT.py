@@ -1,15 +1,17 @@
 #pip install SpeechRecognition
 #pip install pyaudio
+#pip install pydub
+
 import logging
-from speech_recognition import Recognizer, Microphone, WaitTimeoutError
+from speech_recognition import Recognizer, Microphone
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)-7s : %(message)s\n')
 
 class SpeechToText:
     def __init__(self, trigger_word, lang="ko-KR"):
-        self.r = Recognizer()
-        self.mic = Microphone()
+        self.r = Recognizer()    ## 다른 API로 대체할 예정
+        self.mic = Microphone()  ## 계속 사용할 예정
         self.trigger_word = trigger_word # 호출 명령어
         self.lang = lang
 
