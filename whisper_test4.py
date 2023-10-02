@@ -103,7 +103,7 @@ class Whisper_STT_Agent(RealTime_STT):
         super().__init__(model, device, energy, pause, save_file, model_root, mic_index)
         self.wakeup_word = wakeup_word
         self.destination_list = ['미래관, 정문, 후문, 본관, 학생회관, 시대융합관, 창공관']
-        self.WAKEUP_WORD_PROMPT = f"너는 {self.wakeup_word}이라는 wakeup-word만 찾아내야 해. \
+        self.WAKEUP_WORD_PROMPT = f"너는 {self.wakeup_word}이라는 wakeup-word만 탐지해. \
                                    입력값 중에 {self.wakeup_word}과 같거나 유사한 게 있으면 Yes를 대답. \
                                    이외의 입력값은 No로 대답"
         self.PROMPT_FOR_SYSTEM = f"너는 한국말로 듣고 말하는 서울시립대학교 캠퍼스 홍보 및 길 안내 로봇이다.\
@@ -177,3 +177,4 @@ if __name__ == "__main__":
     agent = Whisper_STT_Agent()
     text = agent.listen_and_detect()
     print(text)
+    
