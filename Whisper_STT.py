@@ -6,6 +6,7 @@ import speech_recognition as sr
 import threading
 import numpy as np
 import time
+from threading import Event, Thread
 
 class RealTime_STT:
     def __init__(self,model="base",device=("cuda" if torch.cuda.is_available() else "cpu"),\
@@ -98,6 +99,7 @@ class Whisper_STT(RealTime_STT):
                  energy=300, pause=0.5, save_file=False, model_root="./.cache/whisper", mic_index=None,\
                  wakeup_word='Hello 이루멍'):
         super().__init__(model, device, energy, pause, save_file, model_root, mic_index)
+        self.wakeup_event = Event()
         self.wakeup_word = wakeup_word
         self.destination_list = ['미래관, 정문, 후문, 본관, 학생회관, 시대융합관, 창공관']
         self.WAKEUP_WORD_PROMPT = f"너는 {self.wakeup_word}이라는 wakeup-word만 탐지해. \
@@ -125,7 +127,7 @@ class Whisper_STT(RealTime_STT):
         return self.chat_completion("gpt-3.5-turbo", 0, messages) == "Yes"
 
     # STT_Agent의 preprocess_transcript 메소드
-    def Question_transcript(self, predicted_text):
+    def Preprocess_text(self, predicted_text):
         messages = [
             {"role": "system", "content": self.PROMPT_FOR_SYSTEM},
             {"role": "user", "content": "미래관으로 가줘"},
@@ -137,9 +139,9 @@ class Whisper_STT(RealTime_STT):
             {"role": "user", "content": predicted_text},
         ]
         return self.chat_completion("gpt-3.5-turbo", 0, messages)
-
-    def listen_and_detect(self):
-        while True:  # 끊임없이 마이크에서 음성을 인식
+    
+    def listening_for_wakeup_word(self):
+        while True:
             print('---------------------------------')
             audio_data = self.get_all_audio()
             audio_data = self.preprocess(audio_data)
@@ -149,29 +151,36 @@ class Whisper_STT(RealTime_STT):
             if predicted_text not in self.banned_results:
                 if self.detect_wakeup_word(predicted_text):
                     print("Wakeup word detected!: ", predicted_text)
-                    # 사용자가 호출 명령어를 말한 뒤에 전달하고 싶은 말을 하는 시간을 주기 위해 잠시 대기
-                    time.sleep(0.2)
-                    
-                    # 이후 전달하고 싶은 말을 듣고 처리
-                    print("Listening...")
-                    audio_data = self.get_all_audio()
-                    audio_data = self.preprocess(audio_data)
-                    result = self.audio_model.transcribe(audio_data)
-                    predicted_Q = result["text"]
-                    
-                    if predicted_Q not in self.banned_results:
-                        processed_Q = self.Question_transcript(predicted_Q)
-                        print("Input Message: ", processed_Q)
-                        return processed_Q
-                    break  # 호출 명령어가 감지되면 루프를 종료
+                    self.wakeup_event.set()  # wakeup_event가 True로 바뀜
+                    return
                 else:
                     print("No wakeup word detected. Input :", predicted_text)
+
+    def listen_for_task(self):
+        print("Listening...")
+        audio_data = self.get_all_audio()
+        audio_data = self.preprocess(audio_data)
+        result = self.audio_model.transcribe(audio_data)
+        predicted_Q = result["text"]
+
+        if predicted_Q not in self.banned_results:
+            processed_Q = self.Preprocess_text(predicted_Q)
+            print("Input Message = ", processed_Q)
+            return processed_Q  
+
                     
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
 if __name__ == "__main__":
-    agent = Whisper_STT()
-    text = agent.listen_and_detect()
-    print(text)
+    stt = Whisper_STT()
+    while True:
+        stt.wakeup_event.clear() # wakeup_event를 False로 초기화
+        Thread(target=stt.listening_for_wakeup_word).start()
+        stt.wakeup_event.wait() # wakeup_event가 True가 될 때까지 대기
+
+        print("Wakeup word detected!")
+        processed_Q = stt.listen_for_task()
+
+        print("Processed Message = ", processed_Q)
     

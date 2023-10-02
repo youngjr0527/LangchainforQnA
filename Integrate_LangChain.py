@@ -1,7 +1,6 @@
 #pip install unstructured  (공식문서에서는 !pip install unstructured > /dev/null 를 하라고 한다.)
 #pip install markdown
 from dotenv import load_dotenv
-load_dotenv()
 from langchain.document_loaders import UnstructuredMarkdownLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
@@ -12,9 +11,10 @@ from langchain.prompts import PromptTemplate
 from pathlib import Path
 import logging
 
+load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
-class QARetrieval:
+class CampusGuideBot:
     def __init__(self, db_path="./Chroma_DB", llm_model="gpt-3.5-turbo", temperature=0, template=None):
         self.db_path = db_path
         self.embedding_function = OpenAIEmbeddings()
@@ -70,9 +70,9 @@ class QARetrieval:
 
 
 if __name__ == "__main__":
-    qa_system = QARetrieval(db_path="./Chroma_DB")
-    qa_system.ingest_documents()
+    bot = CampusGuideBot(db_path="./Chroma_DB")
+    bot.ingest_documents()
 
     question = "시립대에는 편의시설 뭐 있어?"
-    result = qa_system.generate_answer(question=question)
+    result = bot.generate_answer(question=question)
     print(result)

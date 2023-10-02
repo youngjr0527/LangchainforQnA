@@ -1,10 +1,11 @@
+# 초기 버전 (audio 파일을 저장하고 불러와 실행하는 방식)
 from dotenv import load_dotenv
 import os
 import requests
 import subprocess
 load_dotenv() # 실제로는 main 함수에서 실행
 
-class NaverTTS:
+class Naver_TTS:
     def __init__(self):
         self.client_id = os.getenv("CLIENT_ID")
         self.client_secret = os.getenv("CLIENT_SECRET")
@@ -47,7 +48,7 @@ class NaverTTS:
             print(f"오류 발생: {e}")
 
 if __name__ == "__main__":
-    tts = NaverTTS()
+    tts = Naver_TTS()
     text = "안녕하세요 저는 이루멍이에요"
     file_path = tts.generate_speech(text)
     if file_path:

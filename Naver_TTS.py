@@ -8,24 +8,24 @@ import io
 
 load_dotenv() # 실제로는 main 함수에서 실행
 
-class NaverTTS:
+class Naver_TTS:
     HEADERS = {
         "Content-Type": "application/x-www-form-urlencoded"
     }
     URL = "https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts"
 
-    def __init__(self, speaker="nwoof"):
+    def __init__(self, voice="nwoof"):
         self.client_id = os.getenv("CLIENT_ID")
         self.client_secret = os.getenv("CLIENT_SECRET")
         self.HEADERS["X-NCP-APIGW-API-KEY-ID"] = self.client_id
         self.HEADERS["X-NCP-APIGW-API-KEY"] = self.client_secret
-        self.speaker = speaker
+        self.voice = voice
         self.p = pyaudio.PyAudio()
 
     def generate_audio_and_play(self, text, volume=0, speed=0, pitch=0, audio_format="mp3"):
         print("streaming text: ", text)
         data = {
-            "speaker": self.speaker,
+            "speaker": self.voice,
             "volume": volume,
             "speed": speed,
             "pitch": pitch,
@@ -35,7 +35,7 @@ class NaverTTS:
         response = requests.post(self.URL, headers=self.HEADERS, data=data)
 
         if response.status_code == 200:
-            print("TTS 스트리밍 재생")
+            print("Speaking...")
             self.stream_audio(response.content)
         else:
             print(f"Error Code: {response.status_code}")
@@ -59,7 +59,7 @@ class NaverTTS:
                 stream.close()
 
 if __name__ == "__main__":
-    tts = NaverTTS()
+    tts = Naver_TTS()
     text = "안녕하세요 저는 이루멍이에요"
     tts.generate_audio_and_play(text)
 
