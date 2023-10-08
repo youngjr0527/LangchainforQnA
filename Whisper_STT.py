@@ -25,7 +25,6 @@ class RealTime_STT:
 
         self.setup_mic(mic_index)
 
-
     def setup_mic(self, mic_index):
         if mic_index is None:
             print("No mic index provided, using default")
@@ -92,17 +91,15 @@ class RealTime_STT:
             if not self.result_queue.empty():
                 return self.result_queue.get()
 
-
-
 class Whisper_STT(RealTime_STT):
-    def __init__(self, model="small", device=("cuda" if torch.cuda.is_available() else "cpu"),\
+    def __init__(self, model="base", device=("cuda" if torch.cuda.is_available() else "cpu"),\
                  energy=300, pause=0.5, save_file=False, model_root="./.cache/whisper", mic_index=None,\
                  wakeup_word='Hello 이루멍'):
         super().__init__(model, device, energy, pause, save_file, model_root, mic_index)
         self.wakeup_event = Event()
         self.wakeup_word = wakeup_word
         self.destination_list = ['미래관, 정문, 후문, 본관, 학생회관, 시대융합관, 창공관']
-        self.WAKEUP_WORD_PROMPT = f"너는 {self.wakeup_word}이라는 wakeup-word만 탐지해. \
+        self.WAKEUP_WORD_PROMPT = f"한국어와 영어만 인식. {self.wakeup_word}이라는 wakeup-word만 탐지해. \
                                    입력값 중에 {self.wakeup_word}과 같거나 유사한 게 있으면 Yes를 대답. \
                                    이외의 입력값은 No로 대답"
         self.PROMPT_FOR_SYSTEM = f"너는 한국말로 듣고 말하는 서울시립대학교 캠퍼스 홍보 및 길 안내 로봇이다.\
@@ -127,12 +124,12 @@ class Whisper_STT(RealTime_STT):
         return self.chat_completion("gpt-3.5-turbo", 0, messages) == "Yes"
 
     # STT_Agent의 preprocess_transcript 메소드
-    def Preprocess_text(self, predicted_text):
+    def preprocess_text(self, predicted_text):
         messages = [
             {"role": "system", "content": self.PROMPT_FOR_SYSTEM},
             {"role": "user", "content": "미래관으로 가줘"},
             {"role": "assistant", "content": "M:미래관"},
-            {"role": "user", "content": "속도좀 줄여줘"},
+            {"role": "user", "content": "속도 줄여줘"},
             {"role": "assistant", "content": "SL"},
             {"role": "user", "content": "동아리는 뭐가 있어?"},
             {"role": "assistant", "content": "Q:동아리는 뭐가 있어?"},
@@ -164,11 +161,11 @@ class Whisper_STT(RealTime_STT):
         predicted_Q = result["text"]
 
         if predicted_Q not in self.banned_results:
-            processed_Q = self.Preprocess_text(predicted_Q)
+            processed_Q = self.preprocess_text(predicted_Q)
             print("Input Message = ", processed_Q)
             return processed_Q  
 
-                    
+
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -179,7 +176,6 @@ if __name__ == "__main__":
         Thread(target=stt.listening_for_wakeup_word).start()
         stt.wakeup_event.wait() # wakeup_event가 True가 될 때까지 대기
 
-        print("Wakeup word detected!")
         processed_Q = stt.listen_for_task()
 
         print("Processed Message = ", processed_Q)
