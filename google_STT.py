@@ -1,44 +1,11 @@
 #pip install SpeechRecognition
 #pip install pyaudio
 #pip install pydub
-class Google_STT_old_version:
-    def __init__(self, lang="ko-KR"):
-        self.r = Recognizer()   
-        self.mic = Microphone()  
-        self.trigger_words = ["이루", "루머", "Hello", "안녕"]
-        self.lang = lang
-
-    def recognize_voice(self):
-        while True:
-            try:
-                with self.mic as source:
-                    logging.info("주변 소음을 측정합니다.")
-                    self.r.adjust_for_ambient_noise(source, duration=1)
-                    logging.info("소음 측정 완료. 음성 인식을 시작합니다.")
-                    audio = self.r.listen(source, timeout=4, phrase_time_limit=2)
-
-                text = self.r.recognize_google(audio, language=self.lang)
-                logging.info("[수집된 음성]: {}".format(text))
-
-                if any(trigger_word in text for trigger_word in self.trigger_words):
-                    logging.info("호출 명령어가 인식되었습니다. 질문을 기다립니다.")
-                    with self.mic as source:
-                        logging.info("질문을 말하세요.")
-                        audio = self.r.listen(source, timeout=5, phrase_time_limit=5)
-                    question_text = self.r.recognize_google(audio, language=self.lang)
-                    logging.info("[질문 내용]: {}".format(question_text))
-                    return question_text
-                else:
-                    logging.info("호출 명령어가 없습니다. 다시 시도하세요.")
-                    return None
-                
-            except:
-                logging.info("타임아웃: 음성 감지 없음. 다시 while문 반복")
-                return None
 
 import logging
 from speech_recognition import Recognizer, Microphone
 import speech_recognition
+import openai
 
 # 로깅 설정
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)-7s : %(message)s\n')
@@ -77,13 +44,15 @@ class Google_STT:
         try:
             with self.mic as source:
                 logging.info("Task을 듣는 중...")
-                audio = self.r.listen(source, timeout=5, phrase_time_limit=2)
+                audio = self.r.listen(source, timeout=6, phrase_time_limit=5)
             task_text = self.r.recognize_google(audio, language=self.lang)
             logging.info("[수집된 Task 내용]: {}".format(task_text))
             return task_text
+        
         except speech_recognition.UnknownValueError:
-            logging.info("알 수 없는 값: Google 음성 인식이 결과를 반환하지 못했습니다.")
-            return False
+            logging.info("음성 결과를 얻지 못했습니다.")
+            return None
+        
         except Exception as e:
             logging.error("Error: {}".format(e))
             return False
@@ -93,29 +62,57 @@ class Google_STT:
             if self.listen_for_trigger():
                 logging.info("호출 명령어가 인식되었습니다.")
                 task_text = self.listen_for_task()
-                logging.info("[task 내용]: {}".format(task_text))
-                break
+                if task_text:
+                    return task_text
+                else:
+                    continue
+            else:
+                continue
 
-if __name__ == "__main__":
-    stt = Google_STT()
-    stt.setup_mic()
-    stt.run()
 
-class Filter_STT(Google_STT):
+
+class STT_Agent(Google_STT):
     def __init__(self, lang="ko-KR"):
         super().__init__(lang)
+        self.destination_list = ['미래관', '정문', '후문', '본관', '학생회관', '시대융합관', '창공관']
+        self.PROMPT_FOR_SYSTEM = f"한국어로 대화합니다. 당신의 역할은 사용자의 질문에 대해 대답을 생성하는 것이 아닌 사용자의 질문을 5가지 경우로 필터링하는 것입니다.\
+                                  1. 사용자의 질문이 {self.destination_list} 중 어디로 가고 싶다는 내용이면 'M:(리스트의 해당 목적지 index 번호)'로 대답해주세요. \
+                                  2. 사용자가 빨리 가라고 요청하면 'SF'라고만 대답해주세요.\
+                                  3. 사용자가 천천히 가라고 요청하면 'SL'라고만 대답해주세요.\
+                                  4. 그 외의 모든 경우, 사용자가 물어본 내용을 앵무새처럼 'Q:사용자의 질문' 형태로 똑같이 대답해주세요.\
+                                  'Q:사용자의 질문'은 서울시립대학교 캠퍼스 홍보 LLM 모델에 질문으로 입력되어 대답을 생성하는데 사용됩니다.\
+                                  만약 학교와 연관성이 전혀 없는 질문이거나 도덕적으로 부적절한 질문이라면, 'No'라고 대답해주세요. "
+
+        
+    def process_user_input(self, messages, model="gpt-3.5-turbo", temp=0):
+        response = openai.ChatCompletion.create(
+            model=model,
+            temperature=temp,
+            messages=messages
+            )['choices'][0]['message']['content']
+        return response
+
+    def filtering_task(self, predicted_text):
+        messages = [
+            {"role": "system", "content": self.PROMPT_FOR_SYSTEM},
+            {"role": "user", "content": "동아리는 뭐가 있어?"},
+            {"role": "assistant", "content": "Q:동아리는 뭐가 있어?"},
+            {"role": "user", "content": "미래관으로 가줘"},
+            {"role": "assistant", "content": "M:미래관"},
+            {"role": "user", "content": "속도 줄여줘"},
+            {"role": "assistant", "content": "SL"},
+            {"role": "user", "content": predicted_text},
+        ]
+        filtered_task = self.process_user_input(messages)
+        return filtered_task
 
 
-
-
-
-
-
-
-
-
-
-
-
+if __name__ == "__main__":
+    stt = STT_Agent()
+    stt.setup_mic()
+    task_text = stt.run()
+    if task_text:
+        filtered_task = stt.filtering_task(task_text)
+        logging.info("[필터링된 결과값]: {}".format(filtered_task))
 
 
