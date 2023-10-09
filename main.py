@@ -2,7 +2,7 @@
 import argparse
 import logging
 from threading import Thread
-from Naver_TTS import Naver_TTS
+from naver_TTS import Naver_TTS
 from google_STT import STT_Agent
 from Integrate_LangChain import CampusGuideBot
 from dotenv import load_dotenv
