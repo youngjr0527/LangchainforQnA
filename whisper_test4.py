@@ -94,7 +94,7 @@ class RealTime_STT:
 
 
 class Whisper_STT(RealTime_STT):
-    def __init__(self, model="small", device=("cuda" if torch.cuda.is_available() else "cpu"),\
+    def __init__(self, model="base", device=("cuda" if torch.cuda.is_available() else "cpu"),\
                  energy=300, pause=0.5, save_file=False, model_root="./.cache/whisper", mic_index=None,\
                  wakeup_word='Hello 이루멍'):
         super().__init__(model, device, energy, pause, save_file, model_root, mic_index)

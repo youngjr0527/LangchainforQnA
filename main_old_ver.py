@@ -1,6 +1,6 @@
 import logging
 from Free_TTS import FreeTTS
-from google_STT import SpeechToText
+from google_STT import Google_STT
 from Integrate_LangChain import CampusGuideBot
 
 # 로깅 설정
@@ -12,7 +12,7 @@ if __name__ == "__main__":
     # qa_system.ingest_documents()  # ingest는 매번 할 필요 없음
     
     trigger_word = "하이 빅스비" # "안녕 이루멍"이라고 정확히 인식을 잘 못함
-    stt = SpeechToText(trigger_word)
+    stt = Google_STT(trigger_word)
     tts = FreeTTS()
 
     while True:
