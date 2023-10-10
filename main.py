@@ -2,12 +2,12 @@
 import argparse
 import logging
 from threading import Thread
-from naver_TTS import Naver_TTS
+from naver_TTS import TTS_Agent
 from google_STT import STT_Agent
 from Integrate_LangChain import CampusGuideBot
 from dotenv import load_dotenv
-
 load_dotenv()
+
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)-7s : %(message)s\n')
 
 parser = argparse.ArgumentParser()
@@ -22,7 +22,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 if __name__ == "__main__":
     stt = STT_Agent()
     bot = CampusGuideBot()
-    tts = Naver_TTS()
+    tts = TTS_Agent()
     if args.update:
         logging.info("Updating LLM...")
         bot.ingest_documents()

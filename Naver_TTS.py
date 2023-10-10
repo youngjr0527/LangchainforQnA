@@ -8,7 +8,7 @@ import io
 
 load_dotenv() # 실제로는 main 함수에서 실행
 
-class Naver_TTS:
+class TTS_Agent:
     HEADERS = {
         "Content-Type": "application/x-www-form-urlencoded"
     }
@@ -59,7 +59,7 @@ class Naver_TTS:
                 stream.close()
 
 if __name__ == "__main__":
-    tts = Naver_TTS()
+    tts = TTS_Agent()
     text = "안녕하세요 저는 이루멍이에요"
     tts.generate_audio_and_play(text)
 
