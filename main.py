@@ -1,10 +1,11 @@
-# OpenAI Whisper + Naver Voice 
 import argparse
 import logging
 from threading import Thread
 from naver_TTS import TTS_Agent
 from google_STT import STT_Agent
 from Integrate_LangChain import CampusGuideBot
+from bringMenu import UOSMenuScraper
+from bringNotice import UOSNoticeScraper
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -13,18 +14,20 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)-7s : 
 parser = argparse.ArgumentParser()
 parser.add_argument('--update', type=bool, default=False, help='Update LLM with Chroma DataBase')
 args = parser.parse_args()
-
-# Whisper에서 발생하는 UserWarning 무시
-import warnings
-warnings.filterwarnings("ignore", category=UserWarning)
+update_LLM = False
 
 # main 함수
 if __name__ == "__main__":
     stt = STT_Agent()
     bot = CampusGuideBot()
     tts = TTS_Agent()
-    if args.update:
+    
+    if args.update or update_LLM:
         logging.info("Updating LLM...")
+        menu_scraper = UOSMenuScraper(save_dir='UOS_DB')
+        notice_scraper = UOSNoticeScraper(save_dir='UOS_DB')
+        menu_scraper.run()
+        notice_scraper.run()
         bot.ingest_documents()
         logging.info("LLM updated!")
         
