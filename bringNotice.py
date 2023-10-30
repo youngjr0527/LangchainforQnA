@@ -37,7 +37,7 @@ class UOSNoticeScraper:
         return data
     
     def remove_old_files(self):
-        for f in glob.glob(f"{self.save_dir}/공지사항*.csv"):
+        for f in glob.glob(f"{self.save_dir}/공지사항*.md"):
             os.remove(f)
 
     def save_to_md(self, data):

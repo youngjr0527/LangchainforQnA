@@ -30,7 +30,7 @@ class CampusGuideBot:
                 logging.warning("default_template.txt not found. Using hardcoded template.")
                 self.template = None
 
-    def ingest_documents(self, md_path=False): # Markdown 뿐만 아니라 pdf, docx 등 다양한 형식의 문서를 지원하도록 수정해야 함
+    def ingest_documents(self, md_path=False): # Markdown 문서 저장
         logging.info(f"Ingesting documents from {md_path if md_path else 'all markdown files'}")
         try:
             if md_path:
