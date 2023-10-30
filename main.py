@@ -62,6 +62,10 @@ if __name__ == "__main__":
 
                 elif task_text == "No":
                     tts.generate_audio_and_play("그것에 관해 답해드릴 수 없어요. 다른 질문을 해주세요.")
+                
+                elif task_text == "D":
+                    tts.generate_audio_and_play("춤추는 중입니다.")
+                    # TODO : 춤추는 ROS 토픽을 보내는 코드 추가
 
                 else:
                     logging.error("### Unexpected input: {}".format(task_text))
