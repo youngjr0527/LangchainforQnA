@@ -1,7 +1,3 @@
-#pip install SpeechRecognition
-#pip install pyaudio
-#pip install pydub
-
 import logging
 from speech_recognition import Recognizer, Microphone
 import speech_recognition

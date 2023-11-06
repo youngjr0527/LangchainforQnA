@@ -39,31 +39,35 @@ if __name__ == "__main__":
             tts.generate_audio_and_play("네, 무엇을 도와드릴까요?")
             task_text = stt.listen_for_task()
             if task_text:
-                if task_text is None:
+                filtered_task = stt.filtering_task(task_text)
+            print('@@@@@@@@@@@@',task_text)
+            print('@@@@@@@@@@@@',filtered_task)
+            if filtered_task:
+                if filtered_task is None:
                     tts.generate_audio_and_play("죄송해요, 잘 못 알아들었어요. 다시 말씀해주세요.")
                     continue  # TODO: 시 호출명령어부터 말해야하는지 아니면 질문만 다시 말할지 결정해야 함
 
-                elif task_text.startswith("Q"):
-                    answer_text = bot.generate_answer(question=task_text[2:])
+                elif filtered_task.startswith("Q"):
+                    answer_text = bot.generate_answer(question=filtered_task[2:])
                     logging.info(f"[출력된 text]: {answer_text}")
                     tts.generate_audio_and_play(answer_text)
 
-                elif task_text.startswith("M"):
-                    tts.generate_audio_and_play(f"{task_text[2:]}까지 안내할게요. 저를 따라오세요")
+                elif filtered_task.startswith("M"):
+                    tts.generate_audio_and_play(f"{filtered_task[2:]}까지 안내할게요. 저를 따라오세요")
                     # TODO: 길 안내하는 ROS 토픽을 보내는 코드 추가
 
-                elif task_text == "SL":
+                elif filtered_task == "SL":
                     tts.generate_audio_and_play("조금 천천히 걸을게요.")
                     # TODO: 속도를 늦추는 ROS 토픽을 보내는 코드 추가
 
-                elif task_text == "SF":
+                elif filtered_task == "SF":
                     tts.generate_audio_and_play("더 빨리 달려볼게요.")
                     # TODO: 속도를 높이는 ROS 토픽을 보내는 코드 추가
 
-                elif task_text == "No":
+                elif filtered_task == "No":
                     tts.generate_audio_and_play("그것에 관해 답해드릴 수 없어요. 다른 질문을 해주세요.")
                 
-                elif task_text == "D":
+                elif filtered_task == "D":
                     tts.generate_audio_and_play("춤추는 중입니다.")
                     # TODO : 춤추는 ROS 토픽을 보내는 코드 추가
 

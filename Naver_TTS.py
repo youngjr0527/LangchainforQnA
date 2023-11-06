@@ -15,8 +15,8 @@ class TTS_Agent:
     URL = "https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts"
 
     def __init__(self, voice="nwoof"):
-        self.client_id = os.getenv("CLIENT_ID")
-        self.client_secret = os.getenv("CLIENT_SECRET")
+        self.client_id = os.getenv("NAVER_CLIENT_ID")
+        self.client_secret = os.getenv("NAVER_CLIENT_SECRET")
         self.HEADERS["X-NCP-APIGW-API-KEY-ID"] = self.client_id
         self.HEADERS["X-NCP-APIGW-API-KEY"] = self.client_secret
         self.voice = voice
@@ -49,7 +49,8 @@ class TTS_Agent:
             stream = self.p.open(format=self.p.get_format_from_width(audio.sample_width),
                                  channels=1,
                                  rate=22050,
-                                 output=True)
+                                 output=True
+                                 )
             stream.write(audio_data)
         except Exception as e:
             print(f"An error occurred: {e}")
