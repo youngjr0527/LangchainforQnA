@@ -102,7 +102,7 @@ if __name__ == "__main__":
     # 프로세스 A와 B 시작
     pa = Process(target=process_A, args=(event,))
     pb = Process(target=process_B, args=(event,))
-    event.clear()
+    event.clear() # 우선 프로세스 A부터 실행
     pa.start()
     pb.start()
 
