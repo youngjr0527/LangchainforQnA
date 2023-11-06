@@ -78,7 +78,7 @@ def process_A(event):
         else:
             continue
 
-        # TODO: 프로세스 B를 시작해야 할 조건(GPS 신호가 들억오면)이 충족되면 event.set() 호출 -> True
+        # TODO: 프로세스 B를 시작해야 할 조건(GPS 신호가 들어오면)이 충족되면 event.set() 호출 -> True
 
 
 # 프로세스 B의 함수
@@ -86,6 +86,8 @@ def process_B(event):
     # 프로세스 B의 로직
     while event.is_set():  # Event가 set 상태일 때만 실행
         # 프로세스 B의 작업 수행
+        # ...
+        # 각 GPS 위치에 맞는 녹음 파일을 재생 (예: 미래관 근처면 미래관 설명 녹음 파일 재생)
         # ...
         # 프로세스 A를 재개해야 할 조건이 충족되면 event.clear() 호출
         pass
