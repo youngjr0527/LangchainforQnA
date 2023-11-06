@@ -1,7 +1,6 @@
 import logging
-import threading
 from speech_recognition import Recognizer, Microphone
-import speech_recognition as sr
+import speech_recognition
 import openai
 
 # 로깅 설정
@@ -19,46 +18,23 @@ class Google_STT:
             logging.info("주변 소음을 측정합니다.")
             self.r.adjust_for_ambient_noise(source)
             logging.info("소음 측정 완료.")
-
-    def listen(self, stop_listening_event):
-        while not stop_listening_event.is_set():
-            try:
-                with self.mic as source:
-                    logging.info("호출 명령어를 탐지하는 중...")
-                    audio = self.r.listen(source, timeout=4, phrase_time_limit=2)
-                self.audio_queue.append(audio)
-            except sr.WaitTimeoutError:
-                pass  # 타임아웃 발생 시 무시하고 계속 진행
-
-    def recognize(self, stop_listening_event):
-        while not stop_listening_event.is_set():
-            if self.audio_queue:
-                audio = self.audio_queue.pop(0)
-                try:
-                    text = self.r.recognize_google(audio, language=self.lang)
-                    logging.info("[수집된 음성]: {}".format(text))
-                    if any(trigger_word in text for trigger_word in self.trigger_words):
-                        stop_listening_event.set()
-                        self.triggered = text
-                except sr.UnknownValueError:
-                    logging.info("호출 명령어가 없습니다.")
-                except Exception as e:
-                    logging.error("Error: {}".format(e))
-
+    
     def listen_for_trigger(self):
-        self.audio_queue = []
-        self.triggered = None
-        stop_listening_event = threading.Event()
-        listen_thread = threading.Thread(target=self.listen, args=(stop_listening_event,))
-        recognize_thread = threading.Thread(target=self.recognize, args=(stop_listening_event,))
+        try:
+            with self.mic as source:
+                logging.info("호출 명령어를 탐지하는 중...")
+                audio = self.r.listen(source, timeout=4, phrase_time_limit=2)
+            text = self.r.recognize_google(audio, language=self.lang)
+            logging.info("[수집된 음성]: {}".format(text))
+            return any(trigger_word in text for trigger_word in self.trigger_words)
         
-        listen_thread.start()
-        recognize_thread.start()
+        except speech_recognition.UnknownValueError:
+            logging.info("호출 명령어가 없습니다.")
+            return False
         
-        listen_thread.join()
-        recognize_thread.join()
-
-        return self.triggered is not None
+        except Exception as e:
+            logging.error("Error: {}".format(e))
+            return False
 
     def listen_for_task(self):
         try:
@@ -69,13 +45,26 @@ class Google_STT:
             logging.info("[수집된 Task 내용]: {}".format(task_text))
             return task_text
         
-        except sr.UnknownValueError:
+        except speech_recognition.UnknownValueError:
             logging.info("음성 결과를 얻지 못했습니다.")
             return None
         
         except Exception as e:
             logging.error("Error: {}".format(e))
             return False
+
+    def run(self):
+        while True:
+            if self.listen_for_trigger():
+                logging.info("호출 명령어가 인식되었습니다.")
+                task_text = self.listen_for_task()
+                if task_text:
+                    return task_text
+                else:
+                    continue
+            else:
+                continue
+
 
 
 class STT_Agent(Google_STT):
@@ -116,14 +105,11 @@ class STT_Agent(Google_STT):
 
 
 if __name__ == "__main__":
-    stt_agent = STT_Agent()
-    stt_agent.setup_mic()
+    stt = STT_Agent()
+    stt.setup_mic()
+    task_text = stt.run()
+    if task_text:
+        filtered_task = stt.filtering_task(task_text)
+        logging.info("[필터링된 결과값]: {}".format(filtered_task))
 
-    if stt_agent.listen_for_trigger():
-        task = stt_agent.listen_for_task()
-        if task:
-            logging.info(f"Task recognized: {task}")
-        else:
-            logging.info("No task was recognized after trigger.")
-    else:
-        logging.info("No trigger word detected.")
+
