@@ -7,10 +7,10 @@ load_dotenv() # 실제로는 main 함수에서 실행
 
 class Naver_TTS:
     def __init__(self):
-        self.client_id = os.getenv("CLIENT_ID")
-        self.client_secret = os.getenv("CLIENT_SECRET")
+        self.client_id = os.getenv("NAVER_CLIENT_ID")
+        self.client_secret = os.getenv("NAVER_CLIENT_SECRET")
 
-    def generate_speech(self, text, file_name='NaverSpeech', speaker="nwoof", volume=0, speed=0, pitch=0, audio_format="mp3"):
+    def generate_speech(self, text, file_name='NaverSpeech', speaker="nara", volume=0, speed=0, pitch=0, audio_format="mp3"):
         source_text = requests.utils.quote(text)
         data = f"speaker={speaker}&volume={volume}&speed={speed}&pitch={pitch}&format={audio_format}&text=" + source_text
         url = "https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts"
@@ -49,7 +49,8 @@ class Naver_TTS:
 
 if __name__ == "__main__":
     tts = Naver_TTS()
-    text = "안녕하세요 저는 이루멍이에요"
+    text = "지금 보고 계시는 건물은 학생회관이며, \
+        학생들이 자유롭게 토론하고 친구들과 교류할 수 있는 공간입니다."
     file_path = tts.generate_speech(text)
     if file_path:
         print(f"MP3 파일이 생성되었습니다: {file_path}")

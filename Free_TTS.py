@@ -10,9 +10,10 @@ def speak(text):
      tts.save(filename)
 
 # main 함수
-# if __name__ == "__main__":
-#     text = '이봐 이루멍'
-#     speak(text) # 음성으로 나오진 않고 voice.mp3 음성파일이 생성된다.
+if __name__ == "__main__":
+    text = '지금 보고 계시는 건물은 학생회관이며.\
+          학생들이 자유롭게 토론하고 친구들과 교류할 수 있는공간입니다.'
+    speak(text) # 음성으로 나오진 않고 voice.mp3 음성파일이 생성된다.
 
 #----------------------------------------------
 # 2. 직접 음성으로 말하는 방식
@@ -29,8 +30,8 @@ class FreeTTS:
         self.engine.runAndWait()
 
 # main 함수
-if __name__ == "__main__":
-    tts = FreeTTS()
-    text = '안녕하세요. 저는 이루멍입니다.'
-    tts.speak(text) # mp3 음성파일로 저장되지 않고 바로 음성이 출력된다.
+# if __name__ == "__main__":
+#     tts = FreeTTS()
+#     text = '안녕하세요. 저는 이루멍입니다.'
+#     tts.speak(text) # mp3 음성파일로 저장되지 않고 바로 음성이 출력된다.
 

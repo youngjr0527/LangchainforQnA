@@ -14,7 +14,7 @@ class TTS_Agent:
     }
     URL = "https://naveropenapi.apigw.ntruss.com/tts-premium/v1/tts"
 
-    def __init__(self, voice="nwoof"):
+    def __init__(self, voice="nihyun"): #nmeow, nwoof
         self.client_id = os.getenv("NAVER_CLIENT_ID")
         self.client_secret = os.getenv("NAVER_CLIENT_SECRET")
         self.HEADERS["X-NCP-APIGW-API-KEY-ID"] = self.client_id
@@ -61,6 +61,7 @@ class TTS_Agent:
 
 if __name__ == "__main__":
     tts = TTS_Agent()
-    text = "안녕하세요 저는 이루멍이에요"
+    text = "여기 보이는 건물은 학생회관이며, \
+        학생들이 자유롭게 토론하고 친구들과 만날 수 있는 공간입니다."
     tts.generate_audio_and_play(text)
 
